@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Based Covid Detection Based From CT Scan Of Chest</title>
+    <link rel="shortcut icon" href = "icon16.png" type="image/x-icon">
+    <link type="text/css" rel="stylesheet" href="style.css">
+    <style>
+
+    </style>
+</head>
+<body> 
+    <div class="banner_container">
+        <img src = "covidimg1.gif" class="banner_img">
+    </div>
+    <div class="notes_container">
+        <p>Implemented Using Deep Learning Algorithm & Flask Web Service !</p>
+    </div>
+    <div class="main_container">
+        <h1>AI Based COVID Detection From CT Scan Of Chest</h1>
+        <img src="#" class="imgPreview">
+        <span class="spanGui">*Please Select Image/File</span>
+        <input id="image-selector" type="file" class="imgSelector">
+        <button type="submit" class="predictionBtnGui" id="predict-button">Prediction</button>
+         <div class="outPut">
+             <img src = "cor4.gif" class="aniat1">
+             <span class="out1"></span>
+         </div>
+         <button type = "submit" class = "resetBtnGui" id="resetBtn">Reset</button>
+    </div>
+    <div class="creater_container">
+         <span> Developed By : Bibhas Dey</span>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script> 
+    //when predict btn click than output show
+              var stopItInterval = setInterval(function()
+              {
+                $(".spanGui").fadeToggle(2000);
+              },2500);
+
+    // below code for display imag which selected 
+              let base64Image;
+              $("#image-selector").change(function() 
+              {
+               let reader = new FileReader();
+               reader.onload = function(e) 
+               {
+                 let dataURL = reader.result;
+                 $('.imgPreview').attr("src", dataURL).fadeIn(2000);
+                 $('.spanGui').remove();
+                 base64Image = dataURL.replace("data:image/png;base64,","");
+                 console.log(base64Image);
+               }
+                reader.readAsDataURL($("#image-selector")[0].files[0]);
+              });
+
+    //below code for predict the result
+              $("#predict-button").click(function()
+              {
+                let message = {
+                                image: base64Image
+                              }
+                              console.log(message);
+                $.post("http://127.0.0.1:9000/predict", JSON.stringify(message), function(response)
+                { 
+                  var finalResult = $(".out1").text(response.prediction);
+                  if(response.prediction == "High Risk Of Infection")
+                  {
+                    $(".out1").css("color","red");
+                    setInterval(function()
+                    {
+                     finalResult.fadeToggle(1000);
+                     },1000);
+                  }
+                  else
+                  {
+                     setInterval(function()
+                     {
+                      finalResult.fadeToggle(1900);
+                     },1500);
+                  }
+                  $(".aniat1").fadeOut(1000);
+                  console.log(response);
+                });
+              });
+    //below code for reser all page
+              $("#resetBtn").click(function()
+              {
+                  location.reload();
+              })
+    //below code for banner
+              imageChanger();
+              function imageChanger()
+              {
+                var images = ["covidimg1.gif","covidimg2.gif","covidimg3.gif","covidimg4.gif","covidimg5.jpg","covidimg6.jpg"];
+                var current = 0;
+                setInterval(function()
+                {
+			     $(".banner_img").attr('src', images[current]);
+                 current = (current < images.length - 1)? current + 1: 0;
+                },10000);
+              };
+    </script>
+</body>
+</html>
